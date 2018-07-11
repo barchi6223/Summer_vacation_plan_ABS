@@ -1,0 +1,90 @@
+				;file D:\IIIT\Desktop\²±¸sµ{¦¡\Relay_Test\Relay_Test.c
+				;1	#include "HT66F70A.h"
+				;2	#define Relay _pc0
+				;3	#define Relayc _pcc0
+				;4	void Delay100us(int);
+				;5	void main()
+				;6	{
+				@code .SECTION 'CODE'
+				include HT66F70A.inc
+0000	1F0B	clr     BP
+0001	2802	jmp     _main_startup1
+				@start .SECTION 'CODE'
+				_main_startup1:
+				@start .SECTION 'CODE'
+0002	0F00	mov     a, 0H
+0003	008B	mov     BP, a
+0004	2819	jmp     _main
+				;7		_wdtc=0b10101111;
+				_main:
+				_main:
+0019	0FAF	mov     a, AFH
+001A	00BE	mov     WDTC, a
+				;8		Relay=0; Relayc=0;
+001B	341A	clr     PC0
+001C	341B	clr     PCC0
+				;9		int x;
+				;10		while(1){
+				;11			Relay=1;
+				_L8:
+001D	301A	set     PC0
+				;12			Delay100us(10000);
+001E	0F10	mov     a, 10H
+001F	4083	mov     del, a
+0020	0F27	mov     a, 27H
+0021	4084	mov     del[1], a
+0022	2005	call    _Delay100us
+				;13			Relay=0;
+0023	341A	clr     PC0
+				;14			Delay100us(10000);		
+0024	0F10	mov     a, 10H
+0025	4083	mov     del, a
+0026	0F27	mov     a, 27H
+0027	4084	mov     del[1], a
+0028	2005	call    _Delay100us
+0029	281D	jmp     _L8
+002A	282A	jmp     $
+				;15		}
+				;16		
+				;17	
+				;18	}
+				;19	
+				;20	void Delay100us(int del){
+				;21		int i,j;
+				;22		for(i=0;i<del;i++){
+				_Delay100us:
+				_Delay100us:
+0005	5F01	clr     rb
+0006	5F02	clr     rc
+				_L2:
+0007	4701	mov     a, rb
+0008	4203	sub     a, del[0]
+0009	4702	mov     a, rc
+000A	5204	sbc     a, del[1]
+000B	3B8A	snz     SC
+000C	2818	jmp     _L1
+000D	5F00	clr     ra
+0014	5481	inc     rb
+0015	3D0A	sz      Z
+0016	5482	inc     rc
+0017	2807	jmp     _L2
+				_L1:
+0018	0003	ret
+				;23			for(j=0;j<=25;j++) GCC_NOP();
+				_L5:
+000E	0000	nop
+000F	5480	inc     ra
+0010	4700	mov     a, ra
+0011	0A1A	sub     a, 1AH
+0012	390A	snz     Z
+0013	280E	jmp     _L5
+				;24		}
+				;25	}
+				data .SECTION 'DATA'
+				__pc DB DUP (?) ; __pc
+				__pcc DB DUP (?) ; __pcc
+				__wdtc DB DUP (?) ; __wdtc
+				ra DB DUP (?)
+				rb DB DUP (?)
+				rc DB DUP (?)
+				del DB 2 DUP (?) ; del
