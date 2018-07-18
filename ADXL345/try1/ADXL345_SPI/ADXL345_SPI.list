@@ -1,0 +1,973 @@
+				;file C:\Users\IIIT\Desktop\ADXL345\try1\ADXL345_SPI\ADXL345_SPI.c
+				;1	#include <HT66F70A.h>
+				;2	
+				;3	#define	DATA_BUS _pg
+				;4	#define RS  _ph0
+				;5	#define RW  _ph1
+				;6	#define EN  _ph2
+				;7	
+				;8	#define SDO _pa5	//				;9	#define SDI _pa6	//				;10	#define SCK _pa7
+				;11	#define CS  _pb5
+				;12	
+				;13	#define SDOC _pac5	//				;14	#define SDIC _pac6
+				;15	#define SCKC _pac7
+				;16	#define CSC  _pbc5
+				;17	
+				;18	#define SDOPU _papu5	//				;19	#define SDIPU _papu6
+				;20	#define SCKPU _papu7
+				;21	#define CSPU  _pbpu5
+				;22	
+				;23	void Delay100us(short);	
+				;24	void _SPI_CS(unsigned short);
+				;25	void _SPI_SCL(unsigned short);
+				;26	unsigned char ADXL345_SPI_Read(unsigned char);
+				;27	void ADXL345_SPI_Write(unsigned char,unsigned char);
+				;28	void LCD_Cmd(unsigned char data);
+				;29	void LCD_Senddata(unsigned char data);
+				;30	void LCD_Reset(void);
+				;31	void PinSet(void);
+				;32	void PrintLCD(unsigned char);
+				;33	
+				;34	int RawDataX[2],RawDataY[2],RawDataZ[2];
+				;35	int* ptrRawData[] =
+0208	00AF	mov     PHC, a
+0209	00A9	mov     PGPU, a
+020A	00AB	mov     PGC, a
+020B	0000	nop
+020C	0000	nop
+020D	0000	nop
+				;36	{&RawDataX[0],&RawDataX[1],&RawDataY[0],&RawDataY[1],&RawDataZ[0],&RawDataZ[1]};
+				;37	int AccX,AccY,AccZ;
+				;38	int* ptrAcc[] = {&AccX,&AccY,&AccZ};
+				@ROMDATA_BASE .SECTION 'CODE'
+				@ROMDATA_BASE .SECTION 'CODE'
+				@ROMDATA_BASE .SECTION 'CODE'
+				@ROMDATA_BASE .SECTION 'CODE'
+				@ROMDATA_BASE .SECTION 'CODE'
+				@ROMDATA_BASE .SECTION 'CODE'
+				@ROMDATA_BASE .SECTION 'CODE'
+				@ROMDATA_BASE .SECTION 'CODE'
+				@ROMDATA_BASE .SECTION 'CODE'
+0205	00B1	mov     INTC1, a
+0206	00B3	mov     INTC3, a
+0207	00AD	mov     PHPU, a
+				;39	unsigned int deviceID;
+				;40	short a,b,i;
+				;41	unsigned int DATAX0;
+				;42	unsigned int DATAX1;
+				;43	unsigned int DATAY0;
+				;44	unsigned int DATAY1;
+				;45	unsigned int DATAZ0;
+				;46	unsigned int DATAZ1;
+				;47	
+				;48	void main()
+				;49	{
+				@code .SECTION 'CODE'
+				include HT66F70A.inc
+0000	1F0B	clr     BP
+0001	2802	jmp     begin_startup_value
+				startupend3:
+				@start .SECTION 'CODE'
+003C	0F00	mov     a, 0H
+003D	008B	mov     BP, a
+003E	29B8	jmp     _main
+				;50		PinSet();	//				_main:
+				_main:
+01B8	21A6	call    _PinSet
+				;51		Delay100us(20);
+01B9	0F14	mov     a, 14H
+01BA	4085	mov     bLevel, a
+01BB	5F06	clr     bLevel[1]
+01BC	203F	call    _Delay100us
+				;52		ADXL345_SPI_Write(0x31,0x0B); //01BD	0F0B	mov     a, BH
+01BE	4087	mov     data, a
+01BF	0F31	mov     a, 31H
+01C0	2142	call    _ADXL345_SPI_Write
+				;53		ADXL345_SPI_Write(0x2D,0x08); //01C1	0F08	mov     a, 8H
+01C2	4087	mov     data, a
+01C3	0F2D	mov     a, 2DH
+01C4	2142	call    _ADXL345_SPI_Write
+				;54		//ADXL345_SPI_Write(0x2c,0x0F);
+				;55		
+				;56		LCD_Reset();		//LCD01C5	2137	call    _LCD_Reset
+				;57	  
+				;58		while(1)
+				;59		{
+				;60			/*for(i=5;i>=0;i--)
+				;61			{
+				;62				*ptrRawData[i] = (int)ADXL345_SPI_Read(i+50);
+				;63			}
+				;64			for(i=0;i<3;i++)
+				;65			{
+				;66				*ptrAcc[i] = ((*ptrRawData[1+i*2]<<8)&0xFF00) | (*ptrRawData[0+i*2]&0xFF);
+				;67				*ptrAcc[i] = *ptrAcc[i] * 4;
+				;68			}
+				;69			AccX = ((RawDataX[1]<<8)&0xFF00)|(RawDataX[0]&0xFF);
+				;70			AccX = AccX*4;
+				;71			AccY = ((RawDataY[1]<<8)&0xFF00)|(RawDataY[0]&0xFF);
+				;72			AccY = AccY*4;
+				;73			AccZ = ((RawDataZ[1]<<8)&0xFF00)|(RawDataZ[0]&0xFF);
+				;74			AccZ = AccZ*4;*/
+				;75			
+				;76			AccX = (ADXL345_SPI_Read(0x33)&0xFF00) | (ADXL345_SPI_Read(0x32)&0xFF);
+				_L25:
+01C6	0F33	mov     a, 33H
+01C7	20D5	call    _ADXL345_SPI_Read
+01C8	0F32	mov     a, 32H
+01C9	20D5	call    _ADXL345_SPI_Read
+01CA	4081	mov     rb, a
+01CB	5F02	clr     rc
+				;77			AccX = AccX * 4;
+01CC	340A	clr     C
+01CD	5A01	rlca    rb
+01CE	40A5	mov     AccX[0], a
+01CF	5A02	rlca    rc
+01D0	40A6	mov     AccX[1], a
+01D1	340A	clr     C
+01D2	5AA5	rlc     AccX[0]
+01D3	5AA6	rlc     AccX[1]
+				;78			AccY = (ADXL345_SPI_Read(0x35)&0xFF00) | (ADXL345_SPI_Read(0x34)&0xFF);
+01D4	0F35	mov     a, 35H
+01D5	20D5	call    _ADXL345_SPI_Read
+01D6	0F34	mov     a, 34H
+01D7	20D5	call    _ADXL345_SPI_Read
+01D8	4081	mov     rb, a
+01D9	5F02	clr     rc
+				;79			AccY = AccY * 4;
+01DA	340A	clr     C
+01DB	5A01	rlca    rb
+01DC	40A3	mov     AccY[0], a
+01DD	5A02	rlca    rc
+01DE	40A4	mov     AccY[1], a
+01DF	340A	clr     C
+01E0	5AA3	rlc     AccY[0]
+01E1	5AA4	rlc     AccY[1]
+				;80			AccZ = (ADXL345_SPI_Read(0x37)&0xFF00) | (ADXL345_SPI_Read(0x36)&0xFF);
+01E2	0F37	mov     a, 37H
+01E3	20D5	call    _ADXL345_SPI_Read
+01E4	0F36	mov     a, 36H
+01E5	20D5	call    _ADXL345_SPI_Read
+01E6	4081	mov     rb, a
+01E7	5F02	clr     rc
+				;81			AccZ = AccZ * 4;
+01E8	340A	clr     C
+01E9	5A01	rlca    rb
+01EA	40A1	mov     AccZ[0], a
+01EB	5A02	rlca    rc
+01EC	40A2	mov     AccZ[1], a
+01ED	340A	clr     C
+01EE	5AA1	rlc     AccZ[0]
+01EF	5AA2	rlc     AccZ[1]
+				;82			
+				;83			/*AccX = ((int)ADXL345_SPI_Read(DATAX1)<<8)|(int)ADXL345_SPI_Read(DATAX0);
+				;84			AccY = ((int)ADXL345_SPI_Read(DATAY1)<<8)|(int)ADXL345_SPI_Read(DATAY0);
+				;85			AccZ = ((int)ADXL345_SPI_Read(DATAZ1)<<8)|(int)ADXL345_SPI_Read(DATAZ0);*/
+				;86			/*Delay100us(200);
+				;87			LCD_Cmd(0x80);  //				;88		 	PrintLCD(AccX);
+				;89		  	Delay100us(200);
+				;90		  	LCD_Cmd(0x86);	//				;91		  	PrintLCD(AccY);
+				;92			Delay100us(200);
+				;93			LCD_Cmd(0x8d);	//				;94		  	PrintLCD(AccZ);*/
+				;95	
+				;96			deviceID = (unsigned int)ADXL345_SPI_Read(0x00);
+01F0	0F00	mov     a, 0H
+01F1	20D5	call    _ADXL345_SPI_Read
+01F2	4080	mov     ra, a
+01F3	4700	mov     a, ra
+01F4	40A7	mov     deviceID[0], a
+01F5	5F28	clr     deviceID[1]
+				;97			LCD_Cmd(0xc0);	//01F6	0FC0	mov     a, C0H
+01F7	20B4	call    _LCD_Cmd
+				;98		  	PrintLCD(deviceID);
+01F8	4727	mov     a, deviceID[0]
+01F9	207D	call    _PrintLCD
+				;99		  	
+				;100		  	/*DATAZ0 = (int)ADXL345_SPI_Read(0x36);
+				;101			LCD_Cmd(0xc6);	//				;102		  	PrintLCD(DATAZ0);
+				;103		  	
+				;104		  	DATAZ1 = (int)ADXL345_SPI_Read(0x37);
+				;105			LCD_Cmd(0xcd);	//				;106		  	PrintLCD(DATAZ1);*/
+				;107		  	
+				;108		  	Delay100us(100);
+01FA	0F64	mov     a, 64H
+01FB	4085	mov     bLevel, a
+01FC	5F06	clr     bLevel[1]
+01FD	203F	call    _Delay100us
+01FE	29C6	jmp     _L25
+01FF	29FF	jmp     $
+				startup_value:
+				@ROMDATA_BASE .SECTION 'CODE'
+0200	0012	jmp     L0012
+0201	008B	mov     BP, a
+0202	00A5	mov     PFPU, a
+0203	00A3	mov     PEC, a
+0204	00A1	mov     PEPU, a
+				;109		}
+				;110	}
+				;111	//////////////////////////////
+				;112	///				;113	//////////////////////////////
+				;114	void PinSet(void)
+				;115	{
+				;116		_wdtc = 0b10101111;//				_PinSet:
+				_PinSet:
+01A6	0FAF	mov     a, AFH
+01A7	00BE	mov     WDTC, a
+				;117		_cp0c = 0x00;	//01A8	1F46	clr     CP0C
+				;118		_cp1c = 0x00;
+01A9	1F47	clr     CP1C
+				;119		_scomen = 0;
+01AA	367F	clr     SCOMEN
+				;120		_smod = 0xe0;//4MHz
+01AB	0FE0	mov     a, E0H
+01AC	00BA	mov     SMOD, a
+				;121		
+				;122		SDOC=0; 	SDIC=1; 	SCKC=0;	    CSC=0;//01AD	3693	clr     PAC5
+01AE	3313	set     PAC6
+01AF	3793	clr     PAC7
+01B0	3697	clr     PBC5
+				;123		_phc0 =0;   _phc1=0;    _phc2=0;    //01B1	342F	clr     PHC0
+01B2	34AF	clr     PHC1
+01B3	352F	clr     PHC2
+				;124		SCK=1;	CS=1;     //01B4	3392	set     PA7
+01B5	3296	set     PB5
+				;125		_pgc = 0x00;   
+01B6	1F2B	clr     PGC
+01B7	0003	ret
+				;126	}
+				;127	
+				;128	
+				;129	//////////////////////////////
+				;130	/////////SPI				;131	//////////////////////////////
+				;132	unsigned char ADXL345_SPI_Read(unsigned char Address)
+				;133	{
+				_ADXL345_SPI_Read:
+				_ADXL345_SPI_Read:
+00D5	4087	mov     Address[0], a
+				;134	  unsigned char ReadData=0;
+010E	5F08	clr     ReadData[0]
+				;135	  unsigned char tempSDO;
+				;136	  _SPI_CS(0);
+00D6	5F05	clr     bLevel
+00D7	5F06	clr     bLevel[1]
+00D8	20CA	call    __SPI_CS
+				;137	  a=7;
+00D9	0F07	mov     a, 7H
+00DA	409F	mov     a[0], a
+00DB	5F20	clr     a[1]
+				;138	  do{
+				;139	    // F-Edge
+				;140	    _SPI_SCL(1);
+				L00DC:
+00DC	0F01	mov     a, 1H
+00DD	4085	mov     bLevel, a
+00DE	5F06	clr     bLevel[1]
+00DF	20C1	call    __SPI_SCL
+				;141	    SDO = 0x1 & ((0x80 | Address) >> a);
+00E0	4707	mov     a, Address[0]
+00E1	4081	mov     rb, a
+00E2	7381	set     rb.7
+00E3	5F02	clr     rc
+00E4	541F	inca    a[0]
+00E5	28EB	jmp     L00EB
+				L00E6:
+00E6	340A	clr     C
+00E7	7F82	sz      rc.7
+00E8	300A	set     C
+00E9	5B82	rrc     rc
+00EA	5B81	rrc     rb
+				L00EB:
+00EB	1785	sdz     ACC
+00EC	28E6	jmp     L00E6
+00ED	0F01	mov     a, 1H
+00EE	4681	andm    a, rb
+00EF	5101	swapa   rb
+00F0	1885	rl      ACC
+00F1	0EE0	and     a, E0H
+00F2	4081	mov     rb, a
+00F3	3692	clr     PA5
+00F4	4701	mov     a, rb
+00F5	0592	orm     a, PA
+				;142	    _SPI_SCL(0);
+00F6	5F05	clr     bLevel
+00F7	5F06	clr     bLevel[1]
+00F8	20C1	call    __SPI_SCL
+				;143	    --a;
+00F9	0FFF	mov     a, FFH
+00FA	431F	add     a, a[0]
+00FB	4081	mov     rb, a
+00FC	0FFF	mov     a, FFH
+00FD	5320	adc     a, a[1]
+00FE	4082	mov     rc, a
+00FF	4701	mov     a, rb
+0100	409F	mov     a[0], a
+0101	4702	mov     a, rc
+0102	40A0	mov     a[1], a
+				;144	  }while(a!=0); 
+0103	4701	mov     a, rb
+0104	4502	or      a, rc
+0105	390A	snz     Z
+0106	28DC	jmp     L00DC
+				;145	  //===========================
+				;146	  _SPI_SCL(1);
+0107	0F01	mov     a, 1H
+0108	4085	mov     bLevel, a
+0109	5F06	clr     bLevel[1]
+010A	20C1	call    __SPI_SCL
+				;147	  //===========================
+				;148	  a=7;
+010B	0F07	mov     a, 7H
+010C	409F	mov     a[0], a
+010D	5F20	clr     a[1]
+				;149	  do{
+				;150	    // R-Edge
+				;151	    _SPI_SCL(0);
+				L010F:
+010F	5F05	clr     bLevel
+0110	5F06	clr     bLevel[1]
+0111	20C1	call    __SPI_SCL
+				;152	    _SPI_SCL(1);
+0112	0F01	mov     a, 1H
+0113	4085	mov     bLevel, a
+0114	5F06	clr     bLevel[1]
+0115	20C1	call    __SPI_SCL
+				;153	    tempSDO = SDI; // Read bit
+0116	5F03	clr     rd
+0117	3F12	sz      PA6
+0118	5483	inc     rd
+				;154	    ReadData |= tempSDO << a;
+0119	471F	mov     a, a[0]
+011A	4081	mov     rb, a
+011B	4720	mov     a, a[1]
+011C	4082	mov     rc, a
+011D	5F04	clr     re
+011E	5401	inca    rb
+011F	2923	jmp     L0123
+				L0120:
+0120	340A	clr     C
+0121	5A83	rlc     rd
+0122	5A84	rlc     re
+				L0123:
+0123	1785	sdz     ACC
+0124	2920	jmp     L0120
+0125	4703	mov     a, rd
+0126	4588	orm     a, ReadData[0]
+				;155	  }while(a--!=0);
+0127	0FFF	mov     a, FFH
+0128	4301	add     a, rb
+0129	409F	mov     a[0], a
+012A	0FFF	mov     a, FFH
+012B	5302	adc     a, rc
+012C	40A0	mov     a[1], a
+012D	4701	mov     a, rb
+012E	4502	or      a, rc
+012F	390A	snz     Z
+0130	290F	jmp     L010F
+				;156	 
+				;157	  _SPI_CS(1);
+0131	0F01	mov     a, 1H
+0132	4085	mov     bLevel, a
+0133	5F06	clr     bLevel[1]
+0134	20CA	call    __SPI_CS
+				;158	  return ReadData & 0xFF;
+				;159	}
+0135	4708	mov     a, ReadData[0]
+0136	0003	ret
+				;160	
+				;161	//////////////////////////////
+				;162	///LCD				;163	//////////////////////////////
+				;164	void PrintLCD(unsigned char data)
+				;165	{
+				_PrintLCD:
+				_PrintLCD:
+007D	4080	mov     ra, a
+007E	408A	mov     data[0], a
+				;166		LCD_Senddata((data/100)%10+0x30);
+007F	5F08	clr     Address
+0080	4700	mov     a, ra
+0081	4085	mov     bLevel, a
+0082	0F64	mov     a, 64H
+0083	4086	mov     bLevel[1], a
+0084	2064	call    L0064
+0085	4705	mov     a, bLevel
+0086	4080	mov     ra, a
+0087	5F08	clr     Address
+0088	4700	mov     a, ra
+0089	4085	mov     bLevel, a
+008A	0F0A	mov     a, AH
+008B	4086	mov     bLevel[1], a
+008C	2064	call    L0064
+008D	4707	mov     a, data
+008E	4080	mov     ra, a
+008F	0F30	mov     a, 30H
+0090	4380	addm    a, ra
+0091	4700	mov     a, ra
+0092	2057	call    _LCD_Senddata
+				;167		LCD_Senddata((data/10)%10+0x30);
+0093	5F08	clr     Address
+0094	470A	mov     a, data[0]
+0095	4085	mov     bLevel, a
+0096	0F0A	mov     a, AH
+0097	4086	mov     bLevel[1], a
+0098	2064	call    L0064
+0099	4705	mov     a, bLevel
+009A	4080	mov     ra, a
+009B	5F08	clr     Address
+009C	4700	mov     a, ra
+009D	4085	mov     bLevel, a
+009E	0F0A	mov     a, AH
+009F	4086	mov     bLevel[1], a
+00A0	2064	call    L0064
+00A1	4707	mov     a, data
+00A2	4080	mov     ra, a
+00A3	0F30	mov     a, 30H
+00A4	4380	addm    a, ra
+00A5	4700	mov     a, ra
+00A6	2057	call    _LCD_Senddata
+				;168		LCD_Senddata((data/1)%10+0x30);
+00A7	5F08	clr     Address
+00A8	470A	mov     a, data[0]
+00A9	4085	mov     bLevel, a
+00AA	0F0A	mov     a, AH
+00AB	4086	mov     bLevel[1], a
+00AC	2064	call    L0064
+00AD	4707	mov     a, data
+00AE	4080	mov     ra, a
+00AF	0F30	mov     a, 30H
+00B0	4380	addm    a, ra
+00B1	4700	mov     a, ra
+00B2	2057	call    _LCD_Senddata
+00B3	0003	ret
+				;169	}
+				;170	
+				;171	//////////////////////////////
+				;172	///Delay100us				;173	//////////////////////////////
+				;174	void Delay100us(short del)						//				;175	{	unsigned short k,l;							//@fSYS=8MH,				_Delay100us:
+				_Delay100us:
+003F	4705	mov     a, del[0]
+0040	4083	mov     rd, a
+0041	4706	mov     a, del[1]
+0042	4084	mov     re, a
+				;176		for(k=0;k<del;k++)
+0043	5F01	clr     rb
+0044	5F02	clr     rc
+				_L3:
+0045	4701	mov     a, rb
+0046	4203	sub     a, rd
+0047	4702	mov     a, rc
+0048	5204	sbc     a, re
+0049	3F0A	sz      CZ
+004A	2856	jmp     _L2
+004B	5F00	clr     ra
+0052	5481	inc     rb
+0053	3D0A	sz      Z
+0054	5482	inc     rc
+0055	2845	jmp     _L3
+				_L2:
+0056	0003	ret
+				;177			for(l=0;l<=25;l++)GCC_NOP();
+				_L6:
+004C	0000	nop
+004D	5480	inc     ra
+004E	4700	mov     a, ra
+004F	0A1A	sub     a, 1AH
+0050	390A	snz     Z
+0051	284C	jmp     _L6
+				;178	}	
+				;179	
+				;180	//////////////////////////////
+				;181	///CS				;182	//////////////////////////////
+				;183	void _SPI_CS(unsigned short isSelect)
+				;184	{
+				;185	    CS=isSelect;
+				__SPI_CS:
+				__SPI_CS:
+00CA	4705	mov     a, isSelect[0]
+00CB	0E01	and     a, 1H
+00CC	4080	mov     ra, a
+00CD	5100	swapa   ra
+00CE	1885	rl      ACC
+00CF	0EE0	and     a, E0H
+00D0	4080	mov     ra, a
+00D1	3696	clr     PB5
+00D2	4700	mov     a, ra
+00D3	0596	orm     a, PB
+00D4	0003	ret
+				;186	
+				;187	}
+				;188	
+				;189	//////////////////////////////
+				;190	///SCL				;191	//////////////////////////////
+				;192	void _SPI_SCL(unsigned short bLevel)
+				;193	{
+				;194	    SCK=bLevel;
+				__SPI_SCL:
+				__SPI_SCL:
+00C1	4705	mov     a, bLevel[0]
+00C2	4080	mov     ra, a
+00C3	5B80	rrc     ra
+00C4	5F00	clr     ra
+00C5	5B80	rrc     ra
+00C6	3792	clr     PA7
+00C7	4700	mov     a, ra
+00C8	0592	orm     a, PA
+00C9	0003	ret
+				;195	
+				;196	}
+				;197	
+				;198	//////////////////////////////
+				;199	///SPI				;200	//////////////////////////////
+				;201	void ADXL345_SPI_Write(unsigned char Address,unsigned char WriteData)
+				;202	{
+				_ADXL345_SPI_Write:
+				_ADXL345_SPI_Write:
+0142	4088	mov     Address[0], a
+				;203	  _SPI_CS(0);
+0143	5F05	clr     bLevel
+0144	5F06	clr     bLevel[1]
+0145	20CA	call    __SPI_CS
+				;204	  b=7;
+0146	0F07	mov     a, 7H
+0147	409D	mov     b[0], a
+0148	5F1E	clr     b[1]
+				;205	  do{
+				;206	    // F-Edge
+				;207	    _SPI_SCL(1);
+				L0149:
+0149	0F01	mov     a, 1H
+014A	4085	mov     bLevel, a
+014B	5F06	clr     bLevel[1]
+014C	20C1	call    __SPI_SCL
+				;208	    SDO = 0x1 & ((0x7F & Address) >> b);
+014D	4708	mov     a, Address[0]
+014E	4081	mov     rb, a
+014F	7781	clr     rb.7
+0150	5F02	clr     rc
+0151	541D	inca    b[0]
+0152	2958	jmp     L0158
+				L0153:
+0153	340A	clr     C
+0154	7F82	sz      rc.7
+0155	300A	set     C
+0156	5B82	rrc     rc
+0157	5B81	rrc     rb
+				L0158:
+0158	1785	sdz     ACC
+0159	2953	jmp     L0153
+015A	0F01	mov     a, 1H
+015B	4681	andm    a, rb
+015C	5101	swapa   rb
+015D	1885	rl      ACC
+015E	0EE0	and     a, E0H
+015F	4081	mov     rb, a
+0160	3692	clr     PA5
+0161	4701	mov     a, rb
+0162	0592	orm     a, PA
+				;209	    _SPI_SCL(0);
+0163	5F05	clr     bLevel
+0164	5F06	clr     bLevel[1]
+0165	20C1	call    __SPI_SCL
+				;210	    --b;
+0166	0FFF	mov     a, FFH
+0167	431D	add     a, b[0]
+0168	4081	mov     rb, a
+0169	0FFF	mov     a, FFH
+016A	531E	adc     a, b[1]
+016B	4082	mov     rc, a
+016C	4701	mov     a, rb
+016D	409D	mov     b[0], a
+016E	4702	mov     a, rc
+016F	409E	mov     b[1], a
+				;211	  }while(b!=0);
+0170	4701	mov     a, rb
+0171	4502	or      a, rc
+0172	390A	snz     Z
+0173	2949	jmp     L0149
+				;212	  
+				;213	  b=7;
+0174	0F07	mov     a, 7H
+0175	409D	mov     b[0], a
+0176	5F1E	clr     b[1]
+				;214	  do{
+				;215	    // F-Edge
+				;216	    _SPI_SCL(1);
+				L0177:
+0177	0F01	mov     a, 1H
+0178	4085	mov     bLevel, a
+0179	5F06	clr     bLevel[1]
+017A	20C1	call    __SPI_SCL
+				;217	    SDO = 0x1 & ((WriteData) >> b);
+017B	4707	mov     a, WriteData[0]
+017C	4081	mov     rb, a
+017D	5F02	clr     rc
+017E	541D	inca    b[0]
+017F	2985	jmp     L0185
+				L0180:
+0180	340A	clr     C
+0181	7F82	sz      rc.7
+0182	300A	set     C
+0183	5B82	rrc     rc
+0184	5B81	rrc     rb
+				L0185:
+0185	1785	sdz     ACC
+0186	2980	jmp     L0180
+0187	0F01	mov     a, 1H
+0188	4681	andm    a, rb
+0189	5101	swapa   rb
+018A	1885	rl      ACC
+018B	0EE0	and     a, E0H
+018C	4081	mov     rb, a
+018D	3692	clr     PA5
+018E	4701	mov     a, rb
+018F	0592	orm     a, PA
+				;218	    _SPI_SCL(0);
+0190	5F05	clr     bLevel
+0191	5F06	clr     bLevel[1]
+0192	20C1	call    __SPI_SCL
+				;219	    --b;
+0193	0FFF	mov     a, FFH
+0194	431D	add     a, b[0]
+0195	4081	mov     rb, a
+0196	0FFF	mov     a, FFH
+0197	531E	adc     a, b[1]
+0198	4082	mov     rc, a
+0199	4701	mov     a, rb
+019A	409D	mov     b[0], a
+019B	4702	mov     a, rc
+019C	409E	mov     b[1], a
+				;220	  }while(b!=0);
+019D	4701	mov     a, rb
+019E	4502	or      a, rc
+019F	390A	snz     Z
+01A0	2977	jmp     L0177
+				;221	  _SPI_CS(1);
+01A1	0F01	mov     a, 1H
+01A2	4085	mov     bLevel, a
+01A3	5F06	clr     bLevel[1]
+01A4	20CA	call    __SPI_CS
+01A5	0003	ret
+				;222	}
+				;223	
+				;224	//---				;225	void LCD_Cmd(unsigned char data)
+				;226	{
+				_LCD_Cmd:
+				_LCD_Cmd:
+00B4	4080	mov     ra, a
+00B5	4087	mov     data[0], a
+				;227	    DATA_BUS = data;  //00B6	4700	mov     a, ra
+00B7	00AA	mov     PG, a
+				;228	    RS=0; RW=0; EN=1; //00B8	342E	clr     PH0
+00B9	34AE	clr     PH1
+00BA	312E	set     PH2
+				;229	    Delay100us(20);
+00BB	0F14	mov     a, 14H
+00BC	4085	mov     bLevel, a
+00BD	5F06	clr     bLevel[1]
+00BE	203F	call    _Delay100us
+				;230	    EN=0;           //00BF	352E	clr     PH2
+00C0	0003	ret
+				;231	}
+				;232	//---				;233	void LCD_Senddata(unsigned char data)
+				;234	{
+				_LCD_Senddata:
+				_LCD_Senddata:
+0057	4080	mov     ra, a
+0058	4087	mov     data[0], a
+				;235	    DATA_BUS = data;  //0059	4700	mov     a, ra
+005A	00AA	mov     PG, a
+				;236	    RS=1; RW=0; EN=1; //005B	302E	set     PH0
+005C	34AE	clr     PH1
+005D	312E	set     PH2
+				;237		Delay100us(20);
+005E	0F14	mov     a, 14H
+005F	4085	mov     bLevel, a
+0060	5F06	clr     bLevel[1]
+0061	203F	call    _Delay100us
+				;238	    EN=0;           //0062	352E	clr     PH2
+0063	0003	ret
+				L0064:
+0064	5F07	clr     data[0]
+0065	0F08	mov     a, 8H
+0066	4089	mov     Address[1], a
+				L0067:
+0067	340A	clr     C
+0068	5A85	rlc     bLevel
+0069	5A87	rlc     data[0]
+006A	4707	mov     a, data[0]
+006B	4206	sub     a, bLevel[1]
+006C	380A	snz     C
+006D	2872	jmp     L0072
+006E	4707	mov     a, data[0]
+006F	4206	sub     a, bLevel[1]
+0070	4087	mov     data[0], a
+0071	5485	inc     bLevel
+				L0072:
+0072	5789	sdz     Address[1]
+0073	2867	jmp     L0067
+0074	7C08	sz      Address.0
+0075	4187	cpl     data[0]
+0076	7C08	sz      Address.0
+0077	5487	inc     data[0]
+0078	7C88	sz      Address.1
+0079	4185	cpl     bLevel
+007A	7C88	sz      Address.1
+007B	5485	inc     bLevel
+007C	0003	ret
+				;239	}
+				;240	//---LCD				;241	void LCD_Reset(void)
+				;242	{
+				;243	    LCD_Cmd(0b00111000);//8bit				_LCD_Reset:
+				_LCD_Reset:
+0137	0F38	mov     a, 38H
+0138	20B4	call    _LCD_Cmd
+				;244	                        //bit4:DL=1,8bit				;245	                        //bit3:N=1,				;246	                        //bit2:F=0,5*7				;247	    LCD_Cmd(0b00001100);//0139	0F0C	mov     a, CH
+013A	20B4	call    _LCD_Cmd
+				;248	                        //bit2:D=1,				;249	                        //bit1:C=0,				;250	    LCD_Cmd(0b00000110);//013B	0F06	mov     a, 6H
+013C	20B4	call    _LCD_Cmd
+				;251	                        //bit1:I/D=1,				;252	                        //bit0:S=0,				;253	    LCD_Cmd(0b00000001); //013D	0F01	mov     a, 1H
+013E	20B4	call    _LCD_Cmd
+				;254	    LCD_Cmd(0b00000010); //013F	0F02	mov     a, 2H
+0140	20B4	call    _LCD_Cmd
+0141	0003	ret
+				;255	}
+				;file C:\Users\IIIT\Desktop\ADXL345\try1\ADXL345_SPI\startup1_l.asm
+				;1	;;--------------------------------------------------------------;;
+				;2	;;    This file is part of the Holtek C Compiler V3 package     ;;
+				;3	;;    For the initialization of static linkage variables        ;;
+				;4	;;    Copyright (C) 2017 Holtek Semiconductor Inc.              ;;
+				;5	;;    Version: 1.07 (Above IDE3000 V7.94)                       ;;
+				;6	;;    Date:    2017/03/06                                        ;;
+				;7	;;--------------------------------------------------------------;;
+				;8	
+				;9	acc equ [05h]
+				;10	tblp equ [07h]
+				;11	tblh equ [08h]
+				;12	;;tbhp equ [09h] 
+				;13	r0 equ [00h]
+				;14	mp0 equ [01h]
+				;15	r1 equ [02h]
+				;16	mp1l equ [03h]
+				;17	mp1h equ [04h]
+				;18	z equ [0ah].2
+				;19	c equ [0ah].0
+				;20	
+				;21	ifndef tbhp
+				;22	tbhp equ [09h]
+				;23	endif
+				;24	 
+				;25	extern startup_value_1:near
+				;26	
+				;27	@start .section 'code'
+				;28	begin_startup_value:
+				;29	  mov a,low (offset startup_value_1) 
+				begin_startup_value:
+				@start .SECTION 'CODE'
+				_main_startup1:
+				@start .SECTION 'CODE'
+0002	0FFF	mov     a, FFH
+				;30	  mov tblp,a
+0003	0087	mov     TBLP, a
+				;31	  mov a,high (offset startup_value_1) 
+0004	0F01	mov     a, 1H
+				;32	  mov tbhp,a
+0005	0089	mov     TBHP, a
+				;33	next_table:
+				;34	  ;CLR WDT
+				;35	  inc tblp
+				next_table:
+0006	1487	inc     TBLP
+				;36	  sz z
+0007	3D0A	sz      Z
+				;37	  inc tbhp
+0008	1489	inc     TBHP
+				;38	ifdef USE_TABRDC
+				;39	  tabrdc mp0
+				;40	else
+				;41	  tabrd mp0
+0009	1D01	tabrd   MP0
+				;42	endif
+				;43	  sz mp0
+000A	1081	sz      MP0
+				;44	  jmp read_data
+000B	280D	jmp     read_data
+				;45	  jmp startupend1
+000C	2822	jmp     startupend1
+				;46	read_data:
+				;47	  inc tblp
+				read_data:
+000D	1487	inc     TBLP
+				;48	  sz z
+000E	3D0A	sz      Z
+				;49	  inc tbhp
+000F	1489	inc     TBHP
+				;50	ifdef USE_TABRDC
+				;51	  tabrdc mp1l
+				;52	else
+				;53	  tabrd mp1l
+0010	1D03	tabrd   MP1L
+				;54	endif
+				;55	  mov a,tblh
+0011	0708	mov     a, TBLH
+				;56	  mov mp1h,a
+				L0012:
+0012	0084	mov     MP1H, a
+				;57	next_data:
+				;58	  inc tblp
+				next_data:
+0013	1487	inc     TBLP
+				;59	  sz z
+0014	3D0A	sz      Z
+				;60	  inc tbhp
+0015	1489	inc     TBHP
+				;61	ifdef USE_TABRDC
+				;62	  tabrdc acc
+				;63	else
+				;64	  tabrd acc
+0016	1D05	tabrd   ACC
+				;65	endif
+				;66	  mov r1,a
+0017	0082	mov     [02H], a
+				;67	  sdz mp0
+0018	1781	sdz     MP0
+				;68	  jmp $+2
+0019	281B	jmp     L001B
+				;69	  jmp next_table
+001A	2806	jmp     next_table
+				;70	  inc mp1l
+				L001B:
+001B	1483	inc     MP1L
+				;71	  mov a,tblh
+001C	0708	mov     a, TBLH
+				;72	  mov r1,a
+001D	0082	mov     [02H], a
+				;73	  inc mp1l
+001E	1483	inc     MP1L
+				;74	  sdz mp0
+001F	1781	sdz     MP0
+				;75	  jmp next_data
+0020	2813	jmp     next_data
+				;76	  jmp next_table
+0021	2806	jmp     next_table
+				;77	
+				;78	;end_startup_value:
+				;79	
+				;80	startupend1:
+				;81	ifndef Disable_Bit_Initial
+				;82		MOV A,high  bitdatasec1_start
+				startupend1:
+0022	0F00	mov     a, 0H
+				;83		MOV mp1h,a
+0023	0084	mov     MP1H, a
+				;84		MOV A,offset bitdatasec1_end
+0024	0F80	mov     a, 80H
+				;85		mov mp1l,A
+0025	0083	mov     MP1L, a
+				;86		dec mp1l
+0026	1583	dec     MP1L
+				;87		clr z
+0027	350A	clr     Z
+				;88		sub a,offset bitdatasec1_start
+0028	0A80	sub     a, 80H
+				;89		sz z
+0029	3D0A	sz      Z
+				;90		jmp startupend2
+002A	282F	jmp     startupend2
+				;91	L0005:
+				;92		set r1
+				L0005:
+002B	1F82	set     [02H]
+				;93		dec mp1l
+002C	1583	dec     MP1L
+				;94		sdz  acc
+002D	1785	sdz     ACC
+				;95		jmp L0005
+002E	282B	jmp     L0005
+				;96	
+				;97	startupend2:
+				;98		MOV A,high  bitdatasec0_start
+				startupend2:
+002F	0F00	mov     a, 0H
+				;99		MOV mp1h,a
+0030	0084	mov     MP1H, a
+				;100		MOV A,offset bitdatasec0_end
+0031	0F80	mov     a, 80H
+				;101		mov mp1l,A
+0032	0083	mov     MP1L, a
+				;102		dec mp1l
+0033	1583	dec     MP1L
+				;103		clr z
+0034	350A	clr     Z
+				;104		sub a,offset bitdatasec0_start
+0035	0A80	sub     a, 80H
+				;105		sz  z
+0036	3D0A	sz      Z
+				;106		jmp startupend3
+0037	283C	jmp     startupend3
+				;107	L0006:
+				;108		clr r1
+				L0006:
+0038	1F02	clr     [02H]
+				;109		dec mp1l
+0039	1583	dec     MP1L
+				;110		sdz  acc
+003A	1785	sdz     ACC
+				;111		jmp L0006
+003B	2838	jmp     L0006
+				;112	startupend3:
+				;113	endif		
+				;114	   
+				;115	@ROMDATA_BASE .SECTION com_l 'CODE'  
+				;116	startup_value:
+				;117	;;linker range the initial value table here
+				;118	
+				;119	@BITDATASEC1 .SECTION com_l 'DATA'  
+				;120	bitdatasec1_start:
+				;121	
+				;122	@BITDATASEC1 .SECTION com_e 'DATA'  
+				;123	bitdatasec1_end:
+				;124	
+				;125	@BITDATASEC .SECTION com_l 'DATA'  
+				;126	bitdatasec0_start:
+				;127	
+				;128	@BITDATASEC .SECTION com_e 'DATA'  
+				;129	bitdatasec0_end:
+				data .SECTION 'DATA'
+				__pa DB DUP (?) ; __pa
+				__pac DB DUP (?) ; __pac
+				__pb DB DUP (?) ; __pb
+				__pbc DB DUP (?) ; __pbc
+				__pg DB DUP (?) ; __pg
+				__pgc DB DUP (?) ; __pgc
+				__ph DB DUP (?) ; __ph
+				__phc DB DUP (?) ; __phc
+				__smod DB DUP (?) ; __smod
+				__wdtc DB DUP (?) ; __wdtc
+				__cp0c DB DUP (?) ; __cp0c
+				__cp1c DB DUP (?) ; __cp1c
+				__scomc DB DUP (?) ; __scomc
+				ra DB DUP (?)
+				rb DB DUP (?)
+				rc DB DUP (?)
+				rd DB DUP (?)
+				re DB DUP (?)
+				bLevel DB 2 DUP (?) ; bLevel
+				data DB DUP (?) ; data
+				Address DB DUP (?) ; Address
+				data DB DUP (?) ; data
+				ptrAcc DB DUP (?) ; ptrAcc
+				ptrRawData DB DUP (?) ; ptrRawData
+				b DB 2 DUP (?) ; b
+				a DB 2 DUP (?) ; a
+				AccZ DB 2 DUP (?) ; AccZ
+				AccY DB 2 DUP (?) ; AccY
+				AccX DB 2 DUP (?) ; AccX
+				deviceID DB 2 DUP (?) ; deviceID
+				RawDataZ DB DUP (?) ; RawDataZ
+				RawDataY DB DUP (?) ; RawDataY
+				RawDataX DB DUP (?) ; RawDataX
+				DATAZ1 DB 2 DUP (?) ; DATAZ1
+				DATAZ0 DB 2 DUP (?) ; DATAZ0
+				DATAY1 DB 2 DUP (?) ; DATAY1
+				DATAY0 DB 2 DUP (?) ; DATAY0
+				DATAX1 DB 2 DUP (?) ; DATAX1
+				DATAX0 DB 2 DUP (?) ; DATAX0
+				i DB 2 DUP (?) ; i
